@@ -1,0 +1,9 @@
+<h2>New Contract Alert</h2>
+<p><strong>Title:</strong> {{ contract_title }}</p>
+<p><strong>Value:</strong> £{{ value_amount }}</p>
+
+{% if buyer_name %}
+    <p><strong>Buyer:</strong> {{ buyer_name }}</p>
+{% else %}
+    <p><strong>Buyer:</strong> Not specified</p>
+{% endif %}
