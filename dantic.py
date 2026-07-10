@@ -32,9 +32,10 @@ class Buyer(BaseModel):
     #field prevents id being treated as a reserved keyword
     name: Optional[str] = None
 
-class awards(BaseModel):
+class Award(BaseModel):
     status: Optional[str] = None
     mainProcurementCategory: Optional[str] = None
+    value: Optional[Value] = None
     suppliers: Optional[List[Suppliers]] = None
 
 #high level
@@ -45,3 +46,4 @@ class Releases(BaseModel):
     #optional because release may not have tender details or buyer details if in planning
     tender: Optional[Tender] = None
     buyer: Optional[Buyer] = None
+    awards: Optional[List[Award]] = None

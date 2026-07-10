@@ -3,17 +3,18 @@ from db import insert_contract, db
 import hashlib
 from datetime import datetime, timedelta
 
-def contract_hash(title,status,value,end_date):
+def contract_hash(title,status,value,end_date,supplier=None):
     #prevents crashes
     safe_title = str(title) if title else ""
     safe_status = str(status) if status else ""
     safe_value = str(value) if value else ""
     safe_end_date = str(end_date) if end_date else ""
-    
-    raw_string = '{}|{}|{}|{}'.format(safe_title, safe_status, safe_value, safe_end_date)
+    safe_supplier = str(supplier) if supplier else ""
+
+    raw_string = '{}|{}|{}|{}|{}'.format(safe_title, safe_status, safe_value, safe_end_date, safe_supplier)
     return hashlib.md5(raw_string.encode('utf-8')).hexdigest()
 
-def process_contract(ocid, publish_date, title, status, value_amount, value_currency, buyer_name, raw_json, contract_hash):
+def process_contract(ocid, publish_date, title, status, value_amount, value_currency, buyer_name, supplier_name, raw_json, contract_hash):
     connect = sqlite3.connect(db)
     cursor = connect.cursor()
 
@@ -24,10 +25,10 @@ def process_contract(ocid, publish_date, title, status, value_amount, value_curr
     if result is None:
         #new, insert
         cursor.execute('''
-                       INSERT INTO contracts (ocid, publish_date, title, status, value_amount, value_currency, buyer_name, raw_json, hash)
-                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                       INSERT INTO contracts (ocid, publish_date, title, status, value_amount, value_currency, buyer_name, supplier_name, raw_json, hash)
+                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                           ''',
-        (ocid, publish_date, title, status, value_amount, value_currency, buyer_name, raw_json, contract_hash))
+        (ocid, publish_date, title, status, value_amount, value_currency, buyer_name, supplier_name, raw_json, contract_hash))
         action = 'NEW'
     else:
         existing_hash = result[0]
@@ -35,10 +36,10 @@ def process_contract(ocid, publish_date, title, status, value_amount, value_curr
             #updated, update record
             cursor.execute('''
                            UPDATE contracts
-                           SET publish_date = ?, title = ?, status = ?, value_amount = ?, value_currency = ?, buyer_name = ?, raw_json = ?, hash = ?
+                           SET publish_date = ?, title = ?, status = ?, value_amount = ?, value_currency = ?, buyer_name = ?, supplier_name = ?, raw_json = ?, hash = ?
                            WHERE ocid = ?
                            ''',
-            (publish_date, title, status, value_amount, value_currency, buyer_name, raw_json, contract_hash, ocid))
+            (publish_date, title, status, value_amount, value_currency, buyer_name, supplier_name, raw_json, contract_hash, ocid))
             action = 'UPDATED'
         else:
             #no change

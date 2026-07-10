@@ -9,11 +9,12 @@ env = Environment(loader=FileSystemLoader('templates'))
 
 template = env.get_template('template.html')
 
-def send_alert(contract_title, value_amount, buyer_name):
+def send_alert(contract_title, value_amount, buyer_name, supplier_name=None):
     html_content = template.render(
         contract_title=contract_title,
         value_amount=value_amount,
-        buyer_name=buyer_name
+        buyer_name=buyer_name,
+        supplier_name=supplier_name
     )
 
     msg = EmailMessage()

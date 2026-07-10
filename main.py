@@ -51,14 +51,29 @@ def run_pipeline():
             else:
                 value_amount = None
                 value_currency = None
+
+            if value_amount is None and release_object.awards:
+                for award in release_object.awards:
+                    if award.value:
+                        value_amount = award.value.amount if award.value.amount else None
+                        value_currency = award.value.currency if award.value.currency else None
+                        break
+
             if release_object.tender and release_object.tender.tenderPeriod:
                 end_date = release_object.tender.tenderPeriod.endDate if release_object.tender.tenderPeriod.endDate else None
             else:
                 end_date = None
             buyer_name = release_object.buyer.name if release_object.buyer else None
 
+            supplier_name = None
+            if release_object.awards:
+                for award in release_object.awards:
+                    if award.suppliers:
+                        supplier_name = award.suppliers[0].name
+                        break
+
             json_string = release_object.model_dump_json()
-            contracthash=contract_hash(title, status, value_amount, end_date)
+            contracthash=contract_hash(title, status, value_amount, end_date, supplier_name)
 
             dbaction = process_contract(
                 ocid=release_object.ocid,
@@ -68,12 +83,13 @@ def run_pipeline():
                 value_amount=value_amount,
                 value_currency=value_currency,
                 buyer_name=buyer_name,
+                supplier_name=supplier_name,
                 raw_json=json_string,
                 contract_hash=contracthash
             )
             print("Contract {} processed with action: {}".format(release_object.ocid, dbaction))
             if dbaction in ('NEW', 'UPDATED'):
-                send_alert(title, value_amount, buyer_name)
+                send_alert(title, value_amount, buyer_name, supplier_name)
             searched_releases.append(release_object)
             print("Parsed release:", release_object.ocid)
         except Exception as exception:

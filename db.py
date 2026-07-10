@@ -14,6 +14,7 @@ def database_setup():
                    value_amount REAL,
                    value_currency TEXT,
                    buyer_name TEXT,
+                   supplier_name TEXT,
                    raw_json TEXT,
                    hash TEXT)
                      ''')
@@ -30,13 +31,13 @@ def database_setup():
 if __name__ == "__main__":
     database_setup()
 
-def insert_contract(ocid, publish_date, title, status, value_amount, value_currency, buyer_name, raw_json, hash):
+def insert_contract(ocid, publish_date, title, status, value_amount, value_currency, buyer_name, supplier_name, raw_json, hash):
     connect = sqlite3.connect(db)
     cursor = connect.cursor()
     cursor.execute('''
-                   INSERT OR REPLACE INTO contracts (ocid, publish_date, title, status, value_amount, value_currency, buyer_name, raw_json, hash)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                   ''', (ocid, publish_date, title, status, value_amount, value_currency, buyer_name, raw_json, hash))
+                   INSERT OR REPLACE INTO contracts (ocid, publish_date, title, status, value_amount, value_currency, buyer_name, supplier_name, raw_json, hash)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                   ''', (ocid, publish_date, title, status, value_amount, value_currency, buyer_name, supplier_name, raw_json, hash))
     connect.commit()
     connect.close()
 
